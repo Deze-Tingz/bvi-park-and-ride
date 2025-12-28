@@ -1,139 +1,290 @@
-import 'dart:io';
+/// Driver Home Screen Business Logic
+///
+/// Handles shift management, GPS tracking, and
+/// WebSocket communication for broadcasting location.
 
-import 'package:dio/dio.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:trippo_driver/Container/Repositories/address_parser_repo.dart';
-import 'package:trippo_driver/Container/Repositories/firestore_repo.dart';
-import 'package:trippo_driver/Container/utils/error_notification.dart';
-import 'package:trippo_driver/View/Screens/Main_Screens/Home_Screen/home_providers.dart';
-import 'package:trippo_driver/View/Screens/Main_Screens/Home_Screen/home_screen.dart';
+import '../../../../Container/services/api_client.dart';
+import '../../../../Container/services/socket_service.dart';
+import '../../../../Container/services/location_service.dart';
+import 'home_providers.dart';
 
 class HomeLogics {
-  /// [getDriverLoc] fetches a the drivers location as soon as user start the app
+  static final HomeLogics _instance = HomeLogics._internal();
+  factory HomeLogics() => _instance;
+  HomeLogics._internal();
 
-  void getDriverLoc(BuildContext context, WidgetRef ref,
-      GoogleMapController controller) async {
+  /// Initialize the driver home screen
+  Future<void> initialize(BuildContext context, WidgetRef ref) async {
+    ref.read(isLoadingProvider.notifier).state = true;
+
     try {
-      /// get driver's location
-      Position pos = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+      // Load available routes and vehicles
+      await _loadRoutesAndVehicles(ref);
 
-      /// animate camera to current driver's location
-      controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target: LatLng(pos.latitude, pos.longitude), zoom: 14)));
-
-      if (context.mounted) {
-        /// get human readable address of the driver
-        await ref
-            .watch(globalAddressParserProvider)
-            .humanReadableAddress(pos, context, ref);
-      }
+      ref.read(isLoadingProvider.notifier).state = false;
     } catch (e) {
-      if (context.mounted) {
-        ErrorNotification().showError(context, "An Error Occurred $e");
-      }
+      ref.read(errorMessageProvider.notifier).state = e.toString();
+      ref.read(isLoadingProvider.notifier).state = false;
     }
   }
 
-  void getDriverOnline(BuildContext context, WidgetRef ref,
-      GoogleMapController controller) async {
+  /// Load available routes and vehicles from API
+  Future<void> _loadRoutesAndVehicles(WidgetRef ref) async {
+    final apiClient = ref.read(apiClientProvider);
+
     try {
-      /// creating location's Geo Point
-      GeoFirePoint myLocation = geo.point(
-          latitude:
-              ref.read(homeScreenDriversLocationProvider)!.locationLatitude!,
-          longitude:
-              ref.read(homeScreenDriversLocationProvider)!.locationLongitude!);
+      // Load routes
+      final routesData = await apiClient.getRoutes();
+      final routes = routesData
+          .map((r) => RouteInfo.fromJson(r as Map<String, dynamic>))
+          .toList();
+      ref.read(availableRoutesProvider.notifier).state = routes;
 
-      /// set driver's current location
-      ref
-          .read(globalFirestoreRepoProvider)
-          .setDriverLocationStatus(context, myLocation);
-
-      /// track driver's location as driver moves
-
-      Geolocator.getPositionStream().listen((event) {
-        ref
-            .read(globalFirestoreRepoProvider)
-            .setDriverLocationStatus(context, myLocation);
-      });
-
-      /// Driver's current position in [LatLng]
-      LatLng driverPos = LatLng(
-          ref.read(homeScreenDriversLocationProvider)!.locationLatitude!,
-          ref.read(homeScreenDriversLocationProvider)!.locationLongitude!);
-
-      /// animate to current driver's position
-      controller.animateCamera(CameraUpdate.newLatLng(driverPos));
-
-      ref.read(globalFirestoreRepoProvider).setDriverStatus(context, "Idle");
-      ref
-          .watch(homeScreenIsDriverActiveProvider.notifier)
-          .update((state) => true);
+      // Load available vehicles
+      final vehiclesData = await apiClient.getAvailableVehicles();
+      final vehicles = vehiclesData
+          .map((v) => VehicleInfo.fromJson(v as Map<String, dynamic>))
+          .toList();
+      ref.read(availableVehiclesProvider.notifier).state = vehicles;
     } catch (e) {
-      ErrorNotification().showError(context, "An Error Occurred $e");
+      print('Error loading data: $e');
+      // Use fallback data
+      _loadFallbackData(ref);
     }
   }
 
-  void getDriverOffline(BuildContext context, WidgetRef ref) async {
+  /// Load fallback data when API is unavailable
+  void _loadFallbackData(WidgetRef ref) {
+    final greenStops = [
+      StopInfo(id: 'stop-001', name: 'Festival Grounds Parking Lot', latitude: 18.4285, longitude: -64.6189, order: 1),
+      StopInfo(id: 'stop-002', name: 'CCT / Eureka Parking', latitude: 18.4278, longitude: -64.6201, order: 2),
+      StopInfo(id: 'stop-003', name: "Bobby's Supermarket", latitude: 18.4290, longitude: -64.6175, order: 3),
+      StopInfo(id: 'stop-004', name: 'Mill Mall', latitude: 18.4275, longitude: -64.6165, order: 4),
+      StopInfo(id: 'stop-005', name: 'Banco Popular', latitude: 18.4268, longitude: -64.6155, order: 5),
+      StopInfo(id: 'stop-006', name: 'Tortola Pier Park', latitude: 18.4255, longitude: -64.6145, order: 6),
+      StopInfo(id: 'stop-007', name: 'Ferry Terminal', latitude: 18.4248, longitude: -64.6135, order: 7),
+    ];
+
+    final yellowStops = [
+      StopInfo(id: 'stop-008', name: 'RiteWay Road Reef', latitude: 18.4295, longitude: -64.6220, order: 1),
+      StopInfo(id: 'stop-009', name: 'Slaney Hill Roundabout', latitude: 18.4310, longitude: -64.6245, order: 2),
+      StopInfo(id: 'stop-010', name: 'Dr. D. Orlando Smith Hospital', latitude: 18.4325, longitude: -64.6260, order: 3),
+      StopInfo(id: 'stop-012', name: 'Elmore Stoutt High School', latitude: 18.4335, longitude: -64.6280, order: 4),
+      StopInfo(id: 'stop-017', name: 'Moorings', latitude: 18.4350, longitude: -64.6300, order: 5),
+    ];
+
+    final fallbackRoutes = [
+      RouteInfo(id: 'green', name: 'Green Line', color: '#22C55E', stops: greenStops),
+      RouteInfo(id: 'yellow', name: 'Yellow Line', color: '#EAB308', stops: yellowStops),
+    ];
+
+    final fallbackVehicles = [
+      VehicleInfo(id: 'v001', plateNumber: 'BVI-001', type: 'shuttle', capacity: 14),
+      VehicleInfo(id: 'v002', plateNumber: 'BVI-002', type: 'shuttle', capacity: 14),
+      VehicleInfo(id: 'v003', plateNumber: 'BVI-003', type: 'shuttle', capacity: 20),
+    ];
+
+    ref.read(availableRoutesProvider.notifier).state = fallbackRoutes;
+    ref.read(availableVehiclesProvider.notifier).state = fallbackVehicles;
+  }
+
+  /// Start a new shift
+  Future<void> startShift(WidgetRef ref) async {
+    final selectedRoute = ref.read(selectedRouteProvider);
+    final selectedVehicle = ref.read(selectedVehicleProvider);
+
+    if (selectedRoute == null || selectedVehicle == null) {
+      ref.read(errorMessageProvider.notifier).state =
+          'Please select a route and vehicle';
+      return;
+    }
+
+    ref.read(shiftStatusProvider.notifier).state = ShiftStatus.starting;
+
     try {
-      /// deactivate Driver
-      ref
-          .watch(homeScreenIsDriverActiveProvider.notifier)
-          .update((state) => false);
+      final apiClient = ref.read(apiClientProvider);
+      final socketService = ref.read(socketServiceProvider);
+      final locationService = ref.read(locationServiceProvider);
 
-      /// set Driver's status to be offline
-      ref.read(globalFirestoreRepoProvider).setDriverStatus(context, "offline");
+      // Start shift via API
+      await apiClient.startShift(
+        vehicleId: selectedVehicle.id,
+        routeId: selectedRoute.id,
+      );
 
-      /// removve driver's location from database
-      ref
-          .read(globalFirestoreRepoProvider)
-          .setDriverLocationStatus(context, null);
+      // Connect WebSocket and register
+      final token = await apiClient.getToken();
+      socketService.connect(authToken: token);
+      socketService.registerDriver(selectedVehicle.id, selectedRoute.id);
 
-      await Future.delayed(const Duration(seconds: 2));
+      // Start GPS tracking
+      await locationService.startTracking(selectedVehicle.id);
 
-      /// close the application
-      SystemChannels.platform.invokeMethod("SystemNavigator.pop");
-      if (context.mounted) {
-        ErrorNotification().showSuccess(context, "You are now Offline");
+      // Set up route stops
+      ref.read(routeStopsProvider.notifier).state = selectedRoute.stops;
+      ref.read(currentStopIndexProvider.notifier).state = 0;
+
+      // Initialize stop visits
+      final visits = <String, StopVisit>{};
+      for (final stop in selectedRoute.stops) {
+        visits[stop.id] = StopVisit(stopId: stop.id, stopName: stop.name);
       }
+      ref.read(stopVisitsProvider.notifier).state = visits;
+
+      // Update state
+      ref.read(shiftStatusProvider.notifier).state = ShiftStatus.active;
+      ref.read(shiftStartTimeProvider.notifier).state = DateTime.now();
+
     } catch (e) {
-      if (context.mounted) {
-        ErrorNotification().showError(context, "An Error Occurred $e");
-      }
+      ref.read(shiftStatusProvider.notifier).state = ShiftStatus.offline;
+      ref.read(errorMessageProvider.notifier).state = 'Failed to start shift: $e';
     }
   }
 
-  Future<dynamic> sendNotificationToUser(
-      BuildContext context, String driverRes) async {
-    try {
-      await Dio().post("https://fcm.googleapis.com/fcm/send",
-          options: Options(headers: {
-            HttpHeaders.contentTypeHeader: "application/json",
-            HttpHeaders.authorizationHeader:
-                "Bearer AAAA7vDmw2Y:APA91bH44PYH1e9Idr_iOA76pQmowxa5nFZsEJ3CoxjUeAi4B9L-3GAezzskpynDU-wHYo144fCpbglxLdP6jJZUIHjKA-Q3gDiffy3OK-bWrDw7mQh2FeEwAWxEX1G4Ey_7MEkDanXs"
-          }),
+  /// End the current shift
+  Future<void> endShift(WidgetRef ref) async {
+    ref.read(shiftStatusProvider.notifier).state = ShiftStatus.ending;
 
-          data: {
-            "data": {"screen": "home"},
-            "notification": {
-              "title": "Driver's Response",
-              "status" : driverRes,
-              "body":
-                  " The Driver has $driverRes your request. ${driverRes == "accepted" ? "The Driver will be arriving soon." : "Sorry! The Driver is not available."}"
-            },
-            "to":
-                "eHeH0bV9QbSMvINPFDoo9k:APA91bHrFlYWx5cnoV4cvzwLDrzG_1EYKFAzU0M0CPQyw983SubqiWALhiAVxHntXnaAiUKNPCTfXdK_Ws9LDgc9aJUT_5jvOe9CznTUMxDVFbX4YE7Iu75OMcIj4PTHLiQP0iRgCcm4"
-          });
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final socketService = ref.read(socketServiceProvider);
+      final locationService = ref.read(locationServiceProvider);
+
+      // Stop GPS tracking
+      locationService.stopTracking();
+
+      // Disconnect WebSocket
+      socketService.disconnect();
+
+      // End shift via API
+      await apiClient.endShift();
+
+      // Reset state
+      ref.read(shiftStatusProvider.notifier).state = ShiftStatus.offline;
+      ref.read(selectedRouteProvider.notifier).state = null;
+      ref.read(selectedVehicleProvider.notifier).state = null;
+      ref.read(routeStopsProvider.notifier).state = [];
+      ref.read(stopVisitsProvider.notifier).state = {};
+      ref.read(currentStopIndexProvider.notifier).state = 0;
+      ref.read(shiftStartTimeProvider.notifier).state = null;
+      ref.read(completedLoopsProvider.notifier).state = 0;
+
     } catch (e) {
-      if (context.mounted) {
-        ErrorNotification().showError(context, "$e");
-      }
+      ref.read(shiftStatusProvider.notifier).state = ShiftStatus.active;
+      ref.read(errorMessageProvider.notifier).state = 'Failed to end shift: $e';
     }
+  }
+
+  /// Mark arrival at a stop
+  void markArrival(WidgetRef ref, StopInfo stop) {
+    final socketService = ref.read(socketServiceProvider);
+    final vehicle = ref.read(selectedVehicleProvider);
+
+    if (vehicle == null) return;
+
+    // Update local state
+    final visits = Map<String, StopVisit>.from(ref.read(stopVisitsProvider));
+    visits[stop.id] = StopVisit(
+      stopId: stop.id,
+      stopName: stop.name,
+      arrivedAt: DateTime.now(),
+    );
+    ref.read(stopVisitsProvider.notifier).state = visits;
+
+    // Notify server
+    socketService.sendStopArrival(vehicle.id, stop.id);
+
+    // Also notify via API for persistence
+    ref.read(apiClientProvider).markArrivedAtStop(stop.id);
+  }
+
+  /// Mark departure from a stop
+  void markDeparture(WidgetRef ref, StopInfo stop) {
+    final socketService = ref.read(socketServiceProvider);
+    final vehicle = ref.read(selectedVehicleProvider);
+    final stops = ref.read(routeStopsProvider);
+    final currentIndex = ref.read(currentStopIndexProvider);
+
+    if (vehicle == null) return;
+
+    // Update local state
+    final visits = Map<String, StopVisit>.from(ref.read(stopVisitsProvider));
+    final existingVisit = visits[stop.id];
+    visits[stop.id] = StopVisit(
+      stopId: stop.id,
+      stopName: stop.name,
+      arrivedAt: existingVisit?.arrivedAt,
+      departedAt: DateTime.now(),
+    );
+    ref.read(stopVisitsProvider.notifier).state = visits;
+
+    // Move to next stop
+    final nextIndex = currentIndex + 1;
+    if (nextIndex >= stops.length) {
+      // Completed a loop
+      ref.read(currentStopIndexProvider.notifier).state = 0;
+      ref.read(completedLoopsProvider.notifier).state =
+          ref.read(completedLoopsProvider) + 1;
+
+      // Reset visits for next loop
+      final newVisits = <String, StopVisit>{};
+      for (final s in stops) {
+        newVisits[s.id] = StopVisit(stopId: s.id, stopName: s.name);
+      }
+      ref.read(stopVisitsProvider.notifier).state = newVisits;
+    } else {
+      ref.read(currentStopIndexProvider.notifier).state = nextIndex;
+    }
+
+    // Notify server
+    socketService.sendStopDeparture(vehicle.id, stop.id);
+
+    // Also notify via API for persistence
+    ref.read(apiClientProvider).markDepartedFromStop(stop.id);
+  }
+
+  /// Update vehicle status
+  Future<void> updateVehicleStatus(WidgetRef ref, VehicleStatus status) async {
+    final previousStatus = ref.read(vehicleStatusProvider);
+    ref.read(vehicleStatusProvider.notifier).state = status;
+
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final statusString = switch (status) {
+        VehicleStatus.available => 'available',
+        VehicleStatus.full => 'full',
+        VehicleStatus.outOfService => 'out_of_service',
+      };
+      await apiClient.updateStatus(statusString);
+    } catch (e) {
+      // Revert on failure
+      ref.read(vehicleStatusProvider.notifier).state = previousStatus;
+      ref.read(errorMessageProvider.notifier).state =
+          'Failed to update status: $e';
+    }
+  }
+
+  /// Select a route
+  void selectRoute(WidgetRef ref, RouteInfo route) {
+    ref.read(selectedRouteProvider.notifier).state = route;
+  }
+
+  /// Select a vehicle
+  void selectVehicle(WidgetRef ref, VehicleInfo vehicle) {
+    ref.read(selectedVehicleProvider.notifier).state = vehicle;
+  }
+
+  /// Get shift duration as formatted string
+  String getShiftDuration(WidgetRef ref) {
+    final startTime = ref.read(shiftStartTimeProvider);
+    if (startTime == null) return '0:00';
+
+    final duration = DateTime.now().difference(startTime);
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    return '$hours:${minutes.toString().padLeft(2, '0')}';
   }
 }

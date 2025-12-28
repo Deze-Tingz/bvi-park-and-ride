@@ -1,13 +1,18 @@
-import 'dart:async';
+/// BVI Park & Ride - Rider Home Screen
+///
+/// Full-screen map showing real-time shuttle positions.
+/// Features:
+/// - Live shuttle tracking
+/// - Route lines (Green/Yellow)
+/// - Stop markers
+/// - Bottom sheet with nearest stop + ETA
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:trippo_user/Container/utils/firebase_messaging.dart';
-import 'package:trippo_user/Container/utils/set_blackmap.dart';
-import 'package:trippo_user/View/Routes/routes.dart';
-import 'package:trippo_user/View/Screens/Main_Screens/Home_Screen/home_logics.dart';
-import 'package:trippo_user/View/Screens/Main_Screens/Home_Screen/home_providers.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'home_logics.dart';
+import 'home_providers.dart';
+import 'home_components.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -17,250 +22,278 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final TextEditingController whereToController = TextEditingController();
-  CameraPosition initpos =
-      const CameraPosition(target: LatLng(0.0, 0.0), zoom: 14);
-
-  final Completer<GoogleMapController> completer = Completer();
-  GoogleMapController? controller;
+  MapboxMap? _mapController;
+  PointAnnotationManager? _stopAnnotationManager;
+  PointAnnotationManager? _vehicleAnnotationManager;
+  PolylineAnnotationManager? _routeAnnotationManager;
 
   @override
   void initState() {
-
     super.initState();
-    MessagingService().init(context , ref);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      HomeScreenLogics().initialize(context, ref);
+    });
+  }
+
+  @override
+  void dispose() {
+    HomeScreenLogics().dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
+    final size = MediaQuery.sizeOf(context);
+    final isLoading = ref.watch(isLoadingProvider);
+    final error = ref.watch(errorMessageProvider);
 
     return Scaffold(
-      body: SafeArea(
-          child: SizedBox(
-              width: size.width,
-              height: size.height,
-              child: Stack(
-                children: [
-                  GoogleMap(
-                    mapType: MapType.normal,
-                    myLocationButtonEnabled: true,
-                    trafficEnabled: true,
-                    compassEnabled: true,
-                    buildingsEnabled: true,
-                    myLocationEnabled: true,
-                    zoomControlsEnabled: false,
-                    zoomGesturesEnabled: true,
-                    initialCameraPosition: initpos,
-                    polylines: ref.watch(homeScreenMainPolylinesProvider),
-                    markers: ref.watch(homeScreenMainMarkersProvider),
-                    circles: ref.watch(homeScreenMainCirclesProvider),
-                    onMapCreated: (map) {
-                      completer.complete(map);
-                      controller = map;
-                      SetBlackMap().setBlackMapTheme(map);
-                      HomeScreenLogics().getUserLoc(context, ref, controller!);
-                    },
-                    onCameraMove: (CameraPosition pos) {
-                      if (ref.watch(homeScreenDropOffLocationProvider) !=
-                          null) {
-                        return;
-                      }
-                      if (ref.watch(homeScreenCameraMovementProvider) !=
-                          pos.target) {
-                        ref
-                            .watch(homeScreenCameraMovementProvider.notifier)
-                            .update((state) => pos.target);
-                      }
-                    },
-                    onCameraIdle: () {
-                      if (ref.watch(homeScreenDropOffLocationProvider) !=
-                          null) {
-                        return;
-                      }
-                      HomeScreenLogics().getAddressfromCordinates(context, ref);
-                    },
-                  ),
-                  ref.watch(homeScreenDropOffLocationProvider) != null
-                      ? Container()
-                      : const Align(
-                          alignment: Alignment.center,
-                          child: Icon(
-                            Icons.location_on,
-                            size: 50,
-                            color: Colors.white,
-                          ),
-                        ),
-                  Positioned(
-                    bottom: 0,
-                    child: Container(
-                      height: 320,
-                      width: size.width,
-                      decoration: const BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20))),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10.0),
-                                child: Text(
-                                  "From",
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 10.0),
-                                child: Container(
-                                  width: size.width * 0.9,
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: const BoxDecoration(
-                                      border: Border(
-                                          bottom:
-                                              BorderSide(color: Colors.blue))),
-                                  child: Row(
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(right: 10.0),
-                                        child: Icon(
-                                          Icons.start_outlined,
-                                          color: Colors.blue,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: size.width * 0.7,
-                                        child: Text(
-                                          ref
-                                                  .watch(
-                                                      homeScreenPickUpLocationProvider)
-                                                  ?.humanReadableAddress ??
-                                              "Loading ...",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall,
-                                          maxLines: 2,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10.0),
-                                child: Text(
-                                  "To",
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () async {
-                                  await context.pushNamed(Routes().whereTo,
-                                      extra: controller);
-                                  if (context.mounted) {
-                                    HomeScreenLogics().openWhereToScreen(
-                                        context, ref, controller!);
-                                  }
-                                },
-                                child: Container(
-                                  width: size.width * 0.9,
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: const BoxDecoration(
-                                      border: Border(
-                                          bottom:
-                                              BorderSide(color: Colors.blue))),
-                                  child: Row(
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(right: 10.0),
-                                        child: Icon(
-                                          Icons.pin_drop_outlined,
-                                          color: Colors.blue,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: size.width * 0.7,
-                                        child: Text(
-                                          ref
-                                                  .watch(
-                                                      homeScreenDropOffLocationProvider)
-                                                  ?.locationName ??
-                                              "Where To",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall,
-                                          maxLines: 2,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    InkWell(
-                                      onTap: () => HomeScreenLogics()
-                                          .changePickUpLoc(
-                                              context, ref, controller!),
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        height: 50,
-                                        width: size.width * 0.4,
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(14.0),
-                                            color: Colors.blue),
-                                        child: Text(
-                                          "Change Pickup Location",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall,
-                                        ),
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () {
-                                      HomeScreenLogics().requestARide(
-                                            size, context, ref, controller!);
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        height: 50,
-                                        width: size.width * 0.4,
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(14.0),
-                                            color: Colors.orange),
-                                        child: Text(
-                                          "Request a Ride",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ]),
+      body: Stack(
+        children: [
+          // Full-screen Mapbox map
+          _buildMap(),
+
+          // Loading overlay
+          if (isLoading)
+            Container(
+              color: Colors.black54,
+              child: const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(color: Colors.white),
+                    SizedBox(height: 16),
+                    Text(
+                      'Loading shuttles...',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Error banner
+          if (error != null)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 10,
+              left: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade700,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        error,
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
-                  )
-                ],
-              ))),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () {
+                        ref.read(errorMessageProvider.notifier).state = null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Route filter chips
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            left: 16,
+            right: 16,
+            child: const RouteFilterChips(),
+          ),
+
+          // My location button
+          Positioned(
+            right: 16,
+            bottom: 200,
+            child: FloatingActionButton(
+              mini: true,
+              backgroundColor: Colors.white,
+              onPressed: () => _centerOnUser(),
+              child: const Icon(Icons.my_location, color: Colors.black87),
+            ),
+          ),
+
+          // Connection status indicator
+          Positioned(
+            left: 16,
+            bottom: 200,
+            child: Consumer(
+              builder: (context, ref, child) {
+                final isConnected = ref.watch(connectionStatusProvider);
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: isConnected ? Colors.green : Colors.orange,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isConnected ? Icons.wifi : Icons.wifi_off,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        isConnected ? 'Live' : 'Connecting...',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // Bottom sheet with nearest stop and ETA
+          const Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: NearestStopSheet(),
+          ),
+        ],
+      ),
     );
   }
 
+  Widget _buildMap() {
+    final mapCenter = ref.watch(mapCenterProvider);
+    final mapZoom = ref.watch(mapZoomProvider);
 
+    return MapWidget(
+      key: const ValueKey('mapWidget'),
+      cameraOptions: CameraOptions(
+        center: Point(
+          coordinates: Position(mapCenter.lng, mapCenter.lat),
+        ),
+        zoom: mapZoom,
+      ),
+      styleUri: MapboxStyles.DARK,
+      onMapCreated: _onMapCreated,
+    );
+  }
+
+  void _onMapCreated(MapboxMap mapController) async {
+    _mapController = mapController;
+
+    // Create annotation managers
+    _stopAnnotationManager = await mapController.annotations
+        .createPointAnnotationManager();
+    _vehicleAnnotationManager = await mapController.annotations
+        .createPointAnnotationManager();
+    _routeAnnotationManager = await mapController.annotations
+        .createPolylineAnnotationManager();
+
+    // Listen for data changes
+    ref.listen(stopsProvider, (_, stops) => _updateStopMarkers(stops));
+    ref.listen(vehiclePositionsProvider, (_, vehicles) => _updateVehicleMarkers(vehicles));
+    ref.listen(routesProvider, (_, routes) => _updateRouteLines(routes));
+    ref.listen(mapCenterProvider, (_, center) => _animateToCenter(center));
+  }
+
+  void _updateStopMarkers(List<StopInfo> stops) async {
+    if (_stopAnnotationManager == null) return;
+
+    await _stopAnnotationManager!.deleteAll();
+
+    for (final stop in stops) {
+      final options = PointAnnotationOptions(
+        geometry: Point(
+          coordinates: Position(stop.longitude, stop.latitude),
+        ),
+        iconSize: 1.0,
+        iconImage: 'marker-15', // Built-in Mapbox marker
+        textField: stop.name,
+        textSize: 10,
+        textOffset: [0, 1.5],
+        textColor: Colors.white.value,
+      );
+      await _stopAnnotationManager!.create(options);
+    }
+  }
+
+  void _updateVehicleMarkers(Map<String, VehiclePosition> vehicles) async {
+    if (_vehicleAnnotationManager == null) return;
+
+    await _vehicleAnnotationManager!.deleteAll();
+
+    for (final vehicle in vehicles.values) {
+      final options = PointAnnotationOptions(
+        geometry: Point(
+          coordinates: Position(vehicle.longitude, vehicle.latitude),
+        ),
+        iconSize: 1.5,
+        iconImage: 'bus-15', // Built-in Mapbox bus icon
+        iconRotate: vehicle.heading ?? 0,
+      );
+      await _vehicleAnnotationManager!.create(options);
+    }
+  }
+
+  void _updateRouteLines(List<RouteInfo> routes) async {
+    if (_routeAnnotationManager == null) return;
+
+    await _routeAnnotationManager!.deleteAll();
+
+    for (final route in routes) {
+      if (route.stops.isEmpty) continue;
+
+      // Create polyline from stop coordinates
+      final coordinates = route.stops
+          .map((s) => Position(s.longitude, s.latitude))
+          .toList();
+
+      final color = _parseColor(route.color);
+
+      final options = PolylineAnnotationOptions(
+        geometry: LineString(coordinates: coordinates),
+        lineWidth: 4.0,
+        lineColor: color.value,
+        lineOpacity: 0.8,
+      );
+      await _routeAnnotationManager!.create(options);
+    }
+  }
+
+  Color _parseColor(String hexColor) {
+    hexColor = hexColor.replaceFirst('#', '');
+    if (hexColor.length == 6) {
+      hexColor = 'FF$hexColor';
+    }
+    return Color(int.parse(hexColor, radix: 16));
+  }
+
+  void _animateToCenter(({double lat, double lng}) center) {
+    _mapController?.flyTo(
+      CameraOptions(
+        center: Point(
+          coordinates: Position(center.lng, center.lat),
+        ),
+        zoom: 15,
+      ),
+      MapAnimationOptions(duration: 1000),
+    );
+  }
+
+  void _centerOnUser() {
+    HomeScreenLogics().centerOnUser(ref);
+  }
 }
