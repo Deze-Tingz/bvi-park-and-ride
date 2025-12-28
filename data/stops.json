@@ -1,0 +1,197 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2024-01-15",
+    "source": "BVI Government Park & Ride Official Stop List",
+    "region": "Road Town, Tortola, British Virgin Islands"
+  },
+  "stops": [
+    {
+      "id": "stop-001",
+      "name": "Festival Grounds Parking Lot",
+      "shortName": "Festival Grounds",
+      "latitude": 18.4285,
+      "longitude": -64.6189,
+      "address": "Festival Grounds, Road Town, Tortola",
+      "type": "parking",
+      "amenities": ["parking", "shelter"],
+      "isActive": true
+    },
+    {
+      "id": "stop-002",
+      "name": "CCT / Eureka Parking",
+      "shortName": "CCT Parking",
+      "latitude": 18.4271,
+      "longitude": -64.6203,
+      "address": "CCT Building, Road Town, Tortola",
+      "type": "parking",
+      "amenities": ["parking"],
+      "isActive": true
+    },
+    {
+      "id": "stop-003",
+      "name": "Bobby's Supermarket",
+      "shortName": "Bobby's",
+      "latitude": 18.4268,
+      "longitude": -64.6180,
+      "address": "Wickham's Cay I, Road Town, Tortola",
+      "type": "commercial",
+      "amenities": ["shelter", "bench"],
+      "isActive": true
+    },
+    {
+      "id": "stop-004",
+      "name": "Mill Mall",
+      "shortName": "Mill Mall",
+      "latitude": 18.4262,
+      "longitude": -64.6195,
+      "address": "Mill Mall, Road Town, Tortola",
+      "type": "commercial",
+      "amenities": ["shelter"],
+      "isActive": true
+    },
+    {
+      "id": "stop-005",
+      "name": "Banco Popular",
+      "shortName": "Banco Popular",
+      "latitude": 18.4255,
+      "longitude": -64.6175,
+      "address": "Main Street, Road Town, Tortola",
+      "type": "commercial",
+      "amenities": [],
+      "isActive": true
+    },
+    {
+      "id": "stop-006",
+      "name": "Tortola Pier Park",
+      "shortName": "Pier Park",
+      "latitude": 18.4240,
+      "longitude": -64.6165,
+      "address": "Tortola Pier Park (rear parking), Road Town, Tortola",
+      "type": "transit",
+      "amenities": ["parking", "shelter", "restroom"],
+      "isActive": true
+    },
+    {
+      "id": "stop-007",
+      "name": "Ferry Terminal",
+      "shortName": "Ferry Terminal",
+      "latitude": 18.4232,
+      "longitude": -64.6158,
+      "address": "Road Town Ferry Terminal, Road Town, Tortola",
+      "type": "transit",
+      "amenities": ["shelter", "bench", "restroom"],
+      "isActive": true
+    },
+    {
+      "id": "stop-008",
+      "name": "RiteWay Road Reef",
+      "shortName": "RiteWay",
+      "latitude": 18.4305,
+      "longitude": -64.6145,
+      "address": "Road Reef, Road Town, Tortola",
+      "type": "commercial",
+      "amenities": ["parking"],
+      "isActive": true
+    },
+    {
+      "id": "stop-009",
+      "name": "Slaney Hill Roundabout",
+      "shortName": "Slaney Hill",
+      "latitude": 18.4320,
+      "longitude": -64.6220,
+      "address": "Slaney Hill, Road Town, Tortola",
+      "type": "intersection",
+      "amenities": [],
+      "isActive": true
+    },
+    {
+      "id": "stop-010",
+      "name": "Dr. D. Orlando Smith Hospital",
+      "shortName": "Hospital",
+      "latitude": 18.4335,
+      "longitude": -64.6235,
+      "address": "Pockwood Pond, Road Town, Tortola",
+      "type": "medical",
+      "amenities": ["parking", "shelter"],
+      "isActive": true
+    },
+    {
+      "id": "stop-011",
+      "name": "Pusser's Parking",
+      "shortName": "Pusser's",
+      "latitude": 18.4248,
+      "longitude": -64.6170,
+      "address": "Pusser's Road Town, Tortola",
+      "type": "commercial",
+      "amenities": ["parking"],
+      "isActive": true
+    },
+    {
+      "id": "stop-012",
+      "name": "Elmore Stoutt High School",
+      "shortName": "ESHS",
+      "latitude": 18.4290,
+      "longitude": -64.6250,
+      "address": "Pasea, Road Town, Tortola",
+      "type": "school",
+      "amenities": ["parking"],
+      "isActive": true
+    },
+    {
+      "id": "stop-013",
+      "name": "Road Town Police Station",
+      "shortName": "Police Station",
+      "latitude": 18.4275,
+      "longitude": -64.6185,
+      "address": "Station Avenue, Road Town, Tortola",
+      "type": "government",
+      "amenities": [],
+      "isActive": true
+    },
+    {
+      "id": "stop-014",
+      "name": "Althea Scatliffe Primary",
+      "shortName": "Althea Scatliffe",
+      "latitude": 18.4300,
+      "longitude": -64.6210,
+      "address": "Pasea, Road Town, Tortola",
+      "type": "school",
+      "amenities": [],
+      "isActive": true
+    },
+    {
+      "id": "stop-015",
+      "name": "OneMart Parking Lot",
+      "shortName": "OneMart",
+      "latitude": 18.4312,
+      "longitude": -64.6198,
+      "address": "OneMart, Road Town, Tortola",
+      "type": "commercial",
+      "amenities": ["parking"],
+      "isActive": true
+    },
+    {
+      "id": "stop-016",
+      "name": "Delta / Golden Hind",
+      "shortName": "Delta",
+      "latitude": 18.4295,
+      "longitude": -64.6160,
+      "address": "Wickham's Cay II, Road Town, Tortola",
+      "type": "commercial",
+      "amenities": [],
+      "isActive": true
+    },
+    {
+      "id": "stop-017",
+      "name": "Moorings",
+      "shortName": "Moorings",
+      "latitude": 18.4318,
+      "longitude": -64.6135,
+      "address": "Wickham's Cay II, Road Town, Tortola",
+      "type": "marina",
+      "amenities": ["parking"],
+      "isActive": true
+    }
+  ]
+}

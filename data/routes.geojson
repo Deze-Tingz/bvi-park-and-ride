@@ -1,0 +1,108 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2024-01-15",
+    "source": "BVI Government Park & Ride Routes"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "green-line",
+      "properties": {
+        "id": "green-line",
+        "name": "Green Line",
+        "shortName": "Green",
+        "color": "#22c55e",
+        "description": "Western corridor route serving Festival Grounds to Ferry Terminal",
+        "isActive": true,
+        "stopIds": [
+          "stop-001",
+          "stop-002",
+          "stop-012",
+          "stop-014",
+          "stop-009",
+          "stop-010",
+          "stop-004",
+          "stop-003",
+          "stop-005",
+          "stop-011",
+          "stop-006",
+          "stop-007"
+        ],
+        "frequency": {
+          "peakMinutes": 10,
+          "offPeakMinutes": 15
+        },
+        "operatingHours": {
+          "start": "06:00",
+          "end": "20:00"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-64.6189, 18.4285],
+          [-64.6203, 18.4271],
+          [-64.6250, 18.4290],
+          [-64.6210, 18.4300],
+          [-64.6220, 18.4320],
+          [-64.6235, 18.4335],
+          [-64.6195, 18.4262],
+          [-64.6180, 18.4268],
+          [-64.6175, 18.4255],
+          [-64.6170, 18.4248],
+          [-64.6165, 18.4240],
+          [-64.6158, 18.4232]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "yellow-line",
+      "properties": {
+        "id": "yellow-line",
+        "name": "Yellow Line",
+        "shortName": "Yellow",
+        "color": "#eab308",
+        "description": "Eastern corridor route serving RiteWay to Moorings via town center",
+        "isActive": true,
+        "stopIds": [
+          "stop-008",
+          "stop-016",
+          "stop-017",
+          "stop-015",
+          "stop-013",
+          "stop-003",
+          "stop-005",
+          "stop-011",
+          "stop-006",
+          "stop-007"
+        ],
+        "frequency": {
+          "peakMinutes": 10,
+          "offPeakMinutes": 15
+        },
+        "operatingHours": {
+          "start": "06:00",
+          "end": "20:00"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-64.6145, 18.4305],
+          [-64.6160, 18.4295],
+          [-64.6135, 18.4318],
+          [-64.6198, 18.4312],
+          [-64.6185, 18.4275],
+          [-64.6180, 18.4268],
+          [-64.6175, 18.4255],
+          [-64.6170, 18.4248],
+          [-64.6165, 18.4240],
+          [-64.6158, 18.4232]
+        ]
+      }
+    }
+  ]
+}
