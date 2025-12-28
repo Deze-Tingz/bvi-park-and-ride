@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>BVI Park & Ride</string>
+	<string>BVI Park &amp; Ride</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -47,5 +47,15 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Mapbox Access Token -->
+	<key>MBXAccessToken</key>
+	<string>pk.eyJ1IjoiZGV6ZXRpbmd6IiwiYSI6ImNtaW42anV4azIwM3ozY3B3eGpxdWlxenYifQ.Y5YI-07V6nwBUCPxF7qH3w</string>
+
+	<!-- Location Permissions -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>BVI Park &amp; Ride needs your location to show nearby shuttle stops and estimate arrival times.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>BVI Park &amp; Ride needs your location to show nearby shuttle stops and provide navigation.</string>
 </dict>
 </plist>
