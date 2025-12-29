@@ -1,0 +1,77 @@
+name: bvi_park_and_ride
+
+packages:
+  - apps/*
+
+command:
+  bootstrap:
+    usePubspecOverrides: true
+
+scripts:
+  # Clean all packages
+  clean:
+    run: flutter clean
+    exec:
+      concurrency: 1
+    description: Clean all packages
+
+  # Get dependencies for all packages
+  get:
+    run: flutter pub get
+    exec:
+      concurrency: 1
+    description: Get dependencies for all packages
+
+  # Run a specific app
+  run:driver:
+    run: flutter run
+    description: Run the driver app
+    packageFilters:
+      scope: bvi_driver_app
+
+  run:rider:
+    run: flutter run
+    description: Run the rider app
+    packageFilters:
+      scope: bvi_rider_app
+
+  # Build debug APKs
+  build:debug:
+    run: flutter build apk --debug
+    exec:
+      concurrency: 1
+    description: Build debug APKs for all apps
+
+  # Build release APKs
+  build:release:
+    run: flutter build apk --release
+    exec:
+      concurrency: 1
+    description: Build release APKs for all apps
+
+  # Build specific apps
+  build:driver:
+    run: flutter build apk --release
+    description: Build driver app release APK
+    packageFilters:
+      scope: bvi_driver_app
+
+  build:rider:
+    run: flutter build apk --release
+    description: Build rider app release APK
+    packageFilters:
+      scope: bvi_rider_app
+
+  # Analyze all packages
+  analyze:
+    run: flutter analyze
+    exec:
+      concurrency: 1
+    description: Analyze all packages
+
+  # Run tests
+  test:
+    run: flutter test
+    exec:
+      concurrency: 1
+    description: Run tests for all packages
