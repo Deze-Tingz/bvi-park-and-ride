@@ -32,7 +32,7 @@ class DriverLogics {
           .update((state) => false);
 
       if (context.mounted) {
-        context.goNamed(Routes().navigationScreen);
+        context.goNamed(Routes().home);
       }
     } catch (e) {
       ref

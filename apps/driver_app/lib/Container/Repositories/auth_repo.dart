@@ -20,7 +20,7 @@ class AuthRepo {
           .signInWithEmailAndPassword(email: email, password: password);
 
       if (context.mounted) {
-        context.goNamed(Routes().navigationScreen);
+        context.goNamed(Routes().home);
       }
     } catch (e) {
       if (context.mounted) {
