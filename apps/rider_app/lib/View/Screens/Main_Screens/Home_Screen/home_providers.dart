@@ -38,15 +38,25 @@ class RouteInfo {
 class StopInfo {
   final String id;
   final String name;
+  final String shortName;
   final double latitude;
   final double longitude;
+  final String type;
+  final List<String> amenities;
+  final int sequence;
+  final bool isStartEnd;
   final int? etaMinutes;
 
   StopInfo({
     required this.id,
     required this.name,
+    this.shortName = '',
     required this.latitude,
     required this.longitude,
+    this.type = 'stop',
+    this.amenities = const [],
+    this.sequence = 0,
+    this.isStartEnd = false,
     this.etaMinutes,
   });
 
@@ -54,9 +64,33 @@ class StopInfo {
     return StopInfo(
       id: json['id'] ?? '',
       name: json['name'] ?? '',
+      shortName: json['shortName'] ?? '',
       latitude: (json['latitude'] ?? 0).toDouble(),
       longitude: (json['longitude'] ?? 0).toDouble(),
+      type: json['type'] ?? 'stop',
+      amenities: (json['amenities'] as List<dynamic>?)?.cast<String>() ?? [],
+      sequence: json['sequence'] ?? 0,
+      isStartEnd: json['isStartEnd'] ?? false,
       etaMinutes: json['etaMinutes'],
+    );
+  }
+
+  /// Create from GeoJSON Feature
+  factory StopInfo.fromGeoJsonFeature(Map<String, dynamic> feature) {
+    final props = feature['properties'] as Map<String, dynamic>? ?? {};
+    final geometry = feature['geometry'] as Map<String, dynamic>? ?? {};
+    final coords = (geometry['coordinates'] as List<dynamic>?) ?? [0, 0];
+
+    return StopInfo(
+      id: props['stop_id'] ?? '',
+      name: props['name'] ?? '',
+      shortName: props['shortName'] ?? '',
+      longitude: (coords[0] as num).toDouble(),
+      latitude: (coords[1] as num).toDouble(),
+      type: props['type'] ?? 'stop',
+      amenities: (props['amenities'] as List<dynamic>?)?.cast<String>() ?? [],
+      sequence: props['sequence'] ?? 0,
+      isStartEnd: props['isStartEnd'] ?? false,
     );
   }
 }

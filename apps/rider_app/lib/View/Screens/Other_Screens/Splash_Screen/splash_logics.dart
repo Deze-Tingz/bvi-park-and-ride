@@ -1,34 +1,29 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
-import 'package:trippo_user/Container/utils/error_notification.dart';
-import 'package:trippo_user/View/Routes/routes.dart';
+import '../../../../Container/utils/error_notification.dart';
+import '../../../../Container/services/api_client.dart';
+import '../../../Routes/routes.dart';
 
-class SplashLogics{
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    void initializeUser(BuildContext context ) async {
-    final User? user = _auth.currentUser;
+class SplashLogics {
+  final ApiClient _apiClient = ApiClient();
 
-    if (user != null) {
-      Timer(
-        const Duration(seconds: 3),
-        () {
+  void initializeUser(BuildContext context) async {
+    // Bypass login - go directly to home screen for testing
+    Timer(
+      const Duration(seconds: 2),
+      () {
+        if (context.mounted) {
           context.goNamed(Routes().home);
-        },
-      );
-    } else {
-      Timer(const Duration(seconds: 3), () {
-        context.goNamed(Routes().login);
-      });
-    }
+        }
+      },
+    );
   }
 
   /// [checkPermissions] checking the permission status
-
   void checkPermissions(BuildContext context) async {
     try {
       LocationPermission permission = await Geolocator.checkPermission();
@@ -43,15 +38,15 @@ class SplashLogics{
         } else {
           if (context.mounted) {
             ErrorNotification().showError(
-                context, "Location Access is required to run Trippo.");
+                context, "Location Access is required to run BVI Park & Ride.");
           }
           await Future.delayed(const Duration(seconds: 2));
-          SystemChannels.platform
-              .invokeMethod("SystemNavigator.pop");
+          SystemChannels.platform.invokeMethod("SystemNavigator.pop");
         }
         return;
-      } else if ( context.mounted &&( permission == LocationPermission.whileInUse ||
-          permission == LocationPermission.always)) {
+      } else if (context.mounted &&
+          (permission == LocationPermission.whileInUse ||
+              permission == LocationPermission.always)) {
         initializeUser(context);
         return;
       }
@@ -59,11 +54,10 @@ class SplashLogics{
       if (permission == LocationPermission.deniedForever ||
           permission == LocationPermission.unableToDetermine) {
         if (context.mounted) {
-          ErrorNotification()
-              .showError(context, "Location Access is required to run Trippo.");
+          ErrorNotification().showError(
+              context, "Location Access is required to run BVI Park & Ride.");
           await Future.delayed(const Duration(seconds: 2));
-          SystemChannels.platform
-              .invokeMethod("SystemNavigator.pop");
+          SystemChannels.platform.invokeMethod("SystemNavigator.pop");
         }
         return;
       }

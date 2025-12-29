@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trippo_user/View/Screens/Other_Screens/Splash_Screen/splash_logics.dart';
+import 'splash_logics.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,8 +16,6 @@ class _SplashScreenState extends State<SplashScreen> {
     SplashLogics().checkPermissions(context);
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
@@ -26,14 +24,23 @@ class _SplashScreenState extends State<SplashScreen> {
           child: SizedBox(
               width: size.width,
               height: size.height,
-              child: Center(
-                child: Text(
-                  "Trippo",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall!
-                      .copyWith(fontFamily: "bold", fontSize: 54),
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/icons/app_icon.png',
+                    width: 120,
+                    height: 120,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    "BVI Park & Ride",
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall!
+                        .copyWith(fontFamily: "bold", fontSize: 32),
+                  ),
+                ],
               ))),
     );
   }

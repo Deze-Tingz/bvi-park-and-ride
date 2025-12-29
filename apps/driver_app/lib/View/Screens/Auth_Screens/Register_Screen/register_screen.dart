@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:trippo_driver/View/Screens/Auth_Screens/Register_Screen/register_logics.dart';
-import 'package:trippo_driver/View/Screens/Auth_Screens/Register_Screen/register_providers.dart';
+import 'package:bvi_driver_app/View/Screens/Auth_Screens/Register_Screen/register_logics.dart';
+import 'package:bvi_driver_app/View/Screens/Auth_Screens/Register_Screen/register_providers.dart';
 import '../../../Components/all_components.dart';
 import '../../../Routes/routes.dart';
 

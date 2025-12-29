@@ -206,3 +206,61 @@ final shiftStartTimeProvider = StateProvider<DateTime?>((ref) {
 final completedLoopsProvider = StateProvider<int>((ref) {
   return 0;
 });
+
+/// Other vehicles on the map (up to 3)
+class OtherVehicle {
+  final String vehicleId;
+  final String routeId;
+  final double latitude;
+  final double longitude;
+  final double? heading;
+  final String status;
+  final DateTime lastUpdate;
+
+  OtherVehicle({
+    required this.vehicleId,
+    required this.routeId,
+    required this.latitude,
+    required this.longitude,
+    this.heading,
+    required this.status,
+    required this.lastUpdate,
+  });
+}
+
+final otherVehiclesProvider = StateProvider<Map<String, OtherVehicle>>((ref) {
+  return {};
+});
+
+/// Driver messages (recent messages from other drivers)
+class ChatMessage {
+  final String id;
+  final String fromDriverId;
+  final String fromDriverName;
+  final String message;
+  final DateTime timestamp;
+  final bool isFromMe;
+
+  ChatMessage({
+    required this.id,
+    required this.fromDriverId,
+    required this.fromDriverName,
+    required this.message,
+    required this.timestamp,
+    this.isFromMe = false,
+  });
+}
+
+final driverMessagesProvider = StateProvider<List<ChatMessage>>((ref) {
+  return [];
+});
+
+/// Unread message count
+final unreadMessageCountProvider = StateProvider<int>((ref) {
+  return 0;
+});
+
+/// Show map view during shift
+final showMapViewProvider = StateProvider<bool>((ref) {
+  return false;
+});

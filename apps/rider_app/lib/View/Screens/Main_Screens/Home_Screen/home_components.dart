@@ -16,55 +16,91 @@ class RouteFilterChips extends ConsumerWidget {
     final routes = ref.watch(routesProvider);
     final selectedRoute = ref.watch(selectedRouteProvider);
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          // "All Routes" chip
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: FilterChip(
-              label: const Text('All Routes'),
-              selected: selectedRoute == null,
-              onSelected: (_) {
-                HomeScreenLogics().selectRoute(ref, null);
-              },
-              backgroundColor: Colors.black54,
-              selectedColor: Colors.blue,
-              labelStyle: TextStyle(
-                color: selectedRoute == null ? Colors.white : Colors.white70,
-              ),
-              checkmarkColor: Colors.white,
-            ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A).withOpacity(0.9),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          // Route-specific chips
-          ...routes.map((route) {
-            final color = _parseColor(route.color);
-            final isSelected = selectedRoute == route.id;
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: FilterChip(
-                label: Text(route.name),
-                selected: isSelected,
-                onSelected: (_) {
-                  HomeScreenLogics().selectRoute(ref, isSelected ? null : route.id);
-                },
-                backgroundColor: Colors.black54,
-                selectedColor: color,
-                labelStyle: const TextStyle(color: Colors.white),
-                checkmarkColor: Colors.white,
-                avatar: Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                  ),
+        ],
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            // "All" chip
+            _buildChip(
+              label: 'All',
+              isSelected: selectedRoute == null,
+              color: Colors.white,
+              onTap: () => HomeScreenLogics().selectRoute(ref, null),
+            ),
+            // Route-specific chips
+            ...routes.map((route) {
+              final color = _parseColor(route.color);
+              final isSelected = selectedRoute == route.id;
+              return _buildChip(
+                label: route.name.replaceAll(' Line', ''),
+                isSelected: isSelected,
+                color: color,
+                onTap: () => HomeScreenLogics().selectRoute(ref, isSelected ? null : route.id),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChip({
+    required String label,
+    required bool isSelected,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? color : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? color : Colors.white24,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!isSelected && color != Colors.white)
+              Container(
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.only(right: 6),
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
                 ),
               ),
-            );
-          }),
-        ],
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.white70,
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

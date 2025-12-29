@@ -1,0 +1,139 @@
+{
+  "festival grounds parking lot": {
+    "source": "mapbox",
+    "lng": -64.63364,
+    "lat": 18.404722,
+    "confidence": 1,
+    "placeName": "Tortola, British Virgin Islands",
+    "matchType": "place"
+  },
+  "cct / eureka parking": {
+    "source": "mapbox",
+    "lng": -64.63364,
+    "lat": 18.404722,
+    "confidence": 1,
+    "placeName": "Tortola, British Virgin Islands",
+    "matchType": "place"
+  },
+  "bobby's supermarket": {
+    "source": "mapbox",
+    "lng": -64.63364,
+    "lat": 18.404722,
+    "confidence": 1,
+    "placeName": "Tortola, British Virgin Islands",
+    "matchType": "place"
+  },
+  "mill mall": {
+    "source": "mapbox",
+    "lng": -64.622894,
+    "lat": 18.424212,
+    "confidence": 0.740741,
+    "placeName": "Road Town, British Virgin Islands",
+    "matchType": "place"
+  },
+  "banco popular": {
+    "source": "mapbox",
+    "lng": -64.622894,
+    "lat": 18.424212,
+    "confidence": 0.740741,
+    "placeName": "Road Town, British Virgin Islands",
+    "matchType": "place"
+  },
+  "tortola pier park": {
+    "source": "mapbox",
+    "lng": -64.63364,
+    "lat": 18.404722,
+    "confidence": 1,
+    "placeName": "Tortola, British Virgin Islands",
+    "matchType": "place"
+  },
+  "ferry terminal": {
+    "source": "mapbox",
+    "lng": -64.622894,
+    "lat": 18.424212,
+    "confidence": 0.740741,
+    "placeName": "Road Town, British Virgin Islands",
+    "matchType": "place"
+  },
+  "riteway road reef": {
+    "source": "mapbox",
+    "lng": -64.622894,
+    "lat": 18.424212,
+    "confidence": 0.617284,
+    "placeName": "Road Town, British Virgin Islands",
+    "matchType": "place"
+  },
+  "slaney hill roundabout": {
+    "source": "mapbox",
+    "lng": -64.63364,
+    "lat": 18.404722,
+    "confidence": 1,
+    "placeName": "Tortola, British Virgin Islands",
+    "matchType": "place"
+  },
+  "dr. d. orlando smith hospital": {
+    "source": "existing",
+    "lng": -64.6235,
+    "lat": 18.4335,
+    "confidence": 0.3,
+    "placeName": "Dr. D. Orlando Smith Hospital (existing coords)",
+    "matchType": "fallback",
+    "needsReview": true
+  },
+  "pusser's parking": {
+    "source": "mapbox",
+    "lng": -64.63364,
+    "lat": 18.404722,
+    "confidence": 1,
+    "placeName": "Tortola, British Virgin Islands",
+    "matchType": "place"
+  },
+  "elmore stoutt high school": {
+    "source": "mapbox",
+    "lng": -64.63364,
+    "lat": 18.404722,
+    "confidence": 1,
+    "placeName": "Tortola, British Virgin Islands",
+    "matchType": "place"
+  },
+  "road town police station": {
+    "source": "mapbox",
+    "lng": -64.63364,
+    "lat": 18.404722,
+    "confidence": 1,
+    "placeName": "Tortola, British Virgin Islands",
+    "matchType": "place"
+  },
+  "althea scatliffe primary": {
+    "source": "mapbox",
+    "lng": -64.622894,
+    "lat": 18.424212,
+    "confidence": 0.617284,
+    "placeName": "Road Town, British Virgin Islands",
+    "matchType": "place"
+  },
+  "onemart parking lot": {
+    "source": "mapbox",
+    "lng": -64.63364,
+    "lat": 18.404722,
+    "confidence": 1,
+    "placeName": "Tortola, British Virgin Islands",
+    "matchType": "place"
+  },
+  "delta / golden hind": {
+    "source": "mapbox",
+    "lng": -64.63364,
+    "lat": 18.404722,
+    "confidence": 1,
+    "placeName": "Tortola, British Virgin Islands",
+    "matchType": "place"
+  },
+  "moorings": {
+    "source": "mapbox",
+    "lng": -64.63364,
+    "lat": 18.404722,
+    "confidence": 0.725926,
+    "placeName": "Tortola, British Virgin Islands",
+    "matchType": "place"
+  }
+}

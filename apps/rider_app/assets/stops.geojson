@@ -1,0 +1,303 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "version": "1.0.0",
+    "generatedAt": "2025-12-28T19:10:00.000Z",
+    "source": "BVI Government Park & Ride Official Stop List",
+    "region": "Road Town, Tortola, British Virgin Islands",
+    "totalStops": 17,
+    "geocodedOk": 17,
+    "needsReview": 0
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-001",
+        "name": "Festival Grounds Parking Lot",
+        "shortName": "Festival Grounds",
+        "line": "Green",
+        "lineColor": "#22c55e",
+        "type": "parking",
+        "amenities": ["parking", "shelter"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6385, 18.4220]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-002",
+        "name": "CCT / Eureka Parking",
+        "shortName": "CCT Parking",
+        "line": "Green",
+        "lineColor": "#22c55e",
+        "type": "parking",
+        "amenities": ["parking"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6340, 18.4245]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-003",
+        "name": "Bobby's Supermarket",
+        "shortName": "Bobby's",
+        "line": "Both",
+        "lineColor": "#6366f1",
+        "type": "commercial",
+        "amenities": ["shelter", "bench"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6195, 18.4285]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-004",
+        "name": "Mill Mall",
+        "shortName": "Mill Mall",
+        "line": "Green",
+        "lineColor": "#22c55e",
+        "type": "commercial",
+        "amenities": ["shelter"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6228, 18.4262]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-005",
+        "name": "Banco Popular",
+        "shortName": "Banco Popular",
+        "line": "Both",
+        "lineColor": "#6366f1",
+        "type": "commercial",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6182, 18.4275]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-006",
+        "name": "Tortola Pier Park",
+        "shortName": "Pier Park",
+        "line": "Both",
+        "lineColor": "#6366f1",
+        "type": "transit",
+        "amenities": ["parking", "shelter", "restroom"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6165, 18.4240]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-007",
+        "name": "Ferry Terminal",
+        "shortName": "Ferry Terminal",
+        "line": "Both",
+        "lineColor": "#6366f1",
+        "type": "transit",
+        "amenities": ["shelter", "bench", "restroom"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6158, 18.4232]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-008",
+        "name": "RiteWay Road Reef",
+        "shortName": "RiteWay",
+        "line": "Yellow",
+        "lineColor": "#eab308",
+        "type": "commercial",
+        "amenities": ["parking"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6120, 18.4305]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-009",
+        "name": "Slaney Hill Roundabout",
+        "shortName": "Slaney Hill",
+        "line": "Green",
+        "lineColor": "#22c55e",
+        "type": "intersection",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6295, 18.4310]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-010",
+        "name": "Dr. D. Orlando Smith Hospital",
+        "shortName": "Hospital",
+        "line": "Green",
+        "lineColor": "#22c55e",
+        "type": "medical",
+        "amenities": ["parking", "shelter"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6348, 18.4355]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-011",
+        "name": "Pusser's Parking",
+        "shortName": "Pusser's",
+        "line": "Both",
+        "lineColor": "#6366f1",
+        "type": "commercial",
+        "amenities": ["parking"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6170, 18.4255]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-012",
+        "name": "Elmore Stoutt High School",
+        "shortName": "ESHS",
+        "line": "Green",
+        "lineColor": "#22c55e",
+        "type": "school",
+        "amenities": ["parking"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6320, 18.4280]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-013",
+        "name": "Road Town Police Station",
+        "shortName": "Police Station",
+        "line": "Yellow",
+        "lineColor": "#eab308",
+        "type": "government",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6205, 18.4268]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-014",
+        "name": "Althea Scatliffe Primary",
+        "shortName": "Althea Scatliffe",
+        "line": "Green",
+        "lineColor": "#22c55e",
+        "type": "school",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6280, 18.4295]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-015",
+        "name": "OneMart Parking Lot",
+        "shortName": "OneMart",
+        "line": "Yellow",
+        "lineColor": "#eab308",
+        "type": "commercial",
+        "amenities": ["parking"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6150, 18.4320]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-016",
+        "name": "Delta / Golden Hind",
+        "shortName": "Delta",
+        "line": "Yellow",
+        "lineColor": "#eab308",
+        "type": "commercial",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6135, 18.4295]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-017",
+        "name": "Moorings",
+        "shortName": "Moorings",
+        "line": "Yellow",
+        "lineColor": "#eab308",
+        "type": "marina",
+        "amenities": ["parking"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6095, 18.4335]
+      }
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 /// Driver Home Screen Business Logic
 ///
-/// Handles shift management, GPS tracking, and
-/// WebSocket communication for broadcasting location.
+/// Handles shift management, GPS tracking,
+/// WebSocket communication, and driver messaging.
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -15,6 +15,9 @@ class HomeLogics {
   static final HomeLogics _instance = HomeLogics._internal();
   factory HomeLogics() => _instance;
   HomeLogics._internal();
+
+  StreamSubscription? _vehicleSubscription;
+  StreamSubscription? _messageSubscription;
 
   /// Initialize the driver home screen
   Future<void> initialize(BuildContext context, WidgetRef ref) async {
@@ -118,7 +121,16 @@ class HomeLogics {
       // Connect WebSocket and register
       final token = await apiClient.getToken();
       socketService.connect(authToken: token);
-      socketService.registerDriver(selectedVehicle.id, selectedRoute.id);
+      socketService.registerDriver(
+        selectedVehicle.id,
+        selectedRoute.id,
+        driverId: 'driver-${selectedVehicle.id}',
+        driverName: 'Driver ${selectedVehicle.plateNumber}',
+      );
+
+      // Start listening for other vehicles
+      _startVehicleListener(ref, socketService);
+      _startMessageListener(ref, socketService);
 
       // Start GPS tracking
       await locationService.startTracking(selectedVehicle.id);
@@ -153,6 +165,10 @@ class HomeLogics {
       final socketService = ref.read(socketServiceProvider);
       final locationService = ref.read(locationServiceProvider);
 
+      // Stop listeners
+      _vehicleSubscription?.cancel();
+      _messageSubscription?.cancel();
+
       // Stop GPS tracking
       locationService.stopTracking();
 
@@ -171,11 +187,135 @@ class HomeLogics {
       ref.read(currentStopIndexProvider.notifier).state = 0;
       ref.read(shiftStartTimeProvider.notifier).state = null;
       ref.read(completedLoopsProvider.notifier).state = 0;
+      ref.read(otherVehiclesProvider.notifier).state = {};
+      ref.read(driverMessagesProvider.notifier).state = [];
+      ref.read(unreadMessageCountProvider.notifier).state = 0;
+      ref.read(showMapViewProvider.notifier).state = false;
 
     } catch (e) {
       ref.read(shiftStatusProvider.notifier).state = ShiftStatus.active;
       ref.read(errorMessageProvider.notifier).state = 'Failed to end shift: $e';
     }
+  }
+
+  /// Start listening for other vehicles (up to 3)
+  void _startVehicleListener(WidgetRef ref, DriverSocketService socketService) {
+    _vehicleSubscription = socketService.vehicleUpdates.listen((update) {
+      final vehicles = Map<String, OtherVehicle>.from(
+        ref.read(otherVehiclesProvider),
+      );
+
+      // Add/update vehicle
+      vehicles[update.vehicleId] = OtherVehicle(
+        vehicleId: update.vehicleId,
+        routeId: update.routeId,
+        latitude: update.latitude,
+        longitude: update.longitude,
+        heading: update.heading,
+        status: update.status,
+        lastUpdate: update.timestamp,
+      );
+
+      // Keep only the 3 most recently updated vehicles
+      if (vehicles.length > 3) {
+        final sortedEntries = vehicles.entries.toList()
+          ..sort((a, b) => b.value.lastUpdate.compareTo(a.value.lastUpdate));
+        final trimmed = Map<String, OtherVehicle>.fromEntries(
+          sortedEntries.take(3),
+        );
+        ref.read(otherVehiclesProvider.notifier).state = trimmed;
+      } else {
+        ref.read(otherVehiclesProvider.notifier).state = vehicles;
+      }
+    });
+  }
+
+  /// Start listening for driver messages
+  void _startMessageListener(WidgetRef ref, DriverSocketService socketService) {
+    _messageSubscription = socketService.driverMessages.listen((message) {
+      final messages = List<ChatMessage>.from(
+        ref.read(driverMessagesProvider),
+      );
+
+      messages.insert(0, ChatMessage(
+        id: message.id,
+        fromDriverId: message.fromDriverId,
+        fromDriverName: message.fromDriverName,
+        message: message.message,
+        timestamp: message.timestamp,
+      ));
+
+      // Keep only last 50 messages
+      if (messages.length > 50) {
+        messages.removeLast();
+      }
+
+      ref.read(driverMessagesProvider.notifier).state = messages;
+      ref.read(unreadMessageCountProvider.notifier).state++;
+    });
+  }
+
+  /// Send a message to other drivers
+  void sendMessage(WidgetRef ref, String message) {
+    final socketService = ref.read(socketServiceProvider);
+    final vehicle = ref.read(selectedVehicleProvider);
+
+    if (vehicle == null || message.trim().isEmpty) return;
+
+    socketService.sendMessage(message.trim());
+
+    // Add to local messages
+    final messages = List<ChatMessage>.from(ref.read(driverMessagesProvider));
+    messages.insert(0, ChatMessage(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      fromDriverId: 'driver-${vehicle.id}',
+      fromDriverName: 'Driver ${vehicle.plateNumber}',
+      message: message.trim(),
+      timestamp: DateTime.now(),
+      isFromMe: true,
+    ));
+    ref.read(driverMessagesProvider.notifier).state = messages;
+  }
+
+  /// Send a quick message
+  void sendQuickMessage(WidgetRef ref, QuickMessage type) {
+    final socketService = ref.read(socketServiceProvider);
+    socketService.sendQuickMessage(type);
+
+    final messages = {
+      QuickMessage.onMyWay: "On my way!",
+      QuickMessage.runningLate: "Running a few minutes late",
+      QuickMessage.atStop: "At the stop now",
+      QuickMessage.busIsFull: "Bus is full",
+      QuickMessage.needAssistance: "Need assistance",
+      QuickMessage.allClear: "All clear",
+    };
+
+    // Add to local messages
+    final vehicle = ref.read(selectedVehicleProvider);
+    if (vehicle != null) {
+      final msgList = List<ChatMessage>.from(ref.read(driverMessagesProvider));
+      msgList.insert(0, ChatMessage(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        fromDriverId: 'driver-${vehicle.id}',
+        fromDriverName: 'Driver ${vehicle.plateNumber}',
+        message: messages[type] ?? '',
+        timestamp: DateTime.now(),
+        isFromMe: true,
+      ));
+      ref.read(driverMessagesProvider.notifier).state = msgList;
+    }
+  }
+
+  /// Clear unread message count
+  void clearUnreadCount(WidgetRef ref) {
+    ref.read(unreadMessageCountProvider.notifier).state = 0;
+  }
+
+  /// Toggle map view
+  void toggleMapView(WidgetRef ref) {
+    final current = ref.read(showMapViewProvider);
+    ref.read(showMapViewProvider.notifier).state = !current;
   }
 
   /// Mark arrival at a stop

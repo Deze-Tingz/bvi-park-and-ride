@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:trippo_driver/Container/Repositories/auth_repo.dart';
-import 'package:trippo_driver/Container/utils/error_notification.dart';
-import 'package:trippo_driver/View/Screens/Auth_Screens/Login_Screen/login_providers.dart';
+import 'package:bvi_driver_app/Container/Repositories/auth_repo.dart';
+import 'package:bvi_driver_app/Container/utils/error_notification.dart';
+import 'package:bvi_driver_app/View/Screens/Auth_Screens/Login_Screen/login_providers.dart';
 
 class LoginLogics {
   void loginUser(

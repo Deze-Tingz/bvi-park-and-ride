@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:trippo_driver/View/Components/all_components.dart';
-import 'package:trippo_driver/View/Screens/Auth_Screens/Driver_config/driver_logics.dart';
-import 'package:trippo_driver/View/Screens/Auth_Screens/Driver_config/driver_providers.dart';
+import 'package:bvi_driver_app/View/Components/all_components.dart';
+import 'package:bvi_driver_app/View/Screens/Auth_Screens/Driver_config/driver_logics.dart';
+import 'package:bvi_driver_app/View/Screens/Auth_Screens/Driver_config/driver_providers.dart';
 
 
 

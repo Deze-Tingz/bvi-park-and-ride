@@ -6,14 +6,14 @@
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
-        android:label="BVI Park & Ride Driver"
+        android:label="BVI Park &amp; Ride Driver"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-        <!-- Mapbox Access Token -->
+        <!-- Google Maps API Key -->
         <meta-data
-            android:name="MAPBOX_ACCESS_TOKEN"
-            android:value="pk.eyJ1IjoiZGV6ZXRpbmd6IiwiYSI6ImNtaW42anV4azIwM3ozY3B3eGpxdWlxenYifQ.Y5YI-07V6nwBUCPxF7qH3w"/>
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAnsK0I2lw7YP3qhUthMBtlsiJ31WVkPrY"/>
 
         <activity
             android:name=".MainActivity"

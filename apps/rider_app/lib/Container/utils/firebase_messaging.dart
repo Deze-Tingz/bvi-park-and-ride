@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:trippo_user/Container/Repositories/firestore_repo.dart';
-import 'package:trippo_user/Container/utils/error_notification.dart';
+import 'package:bvi_rider_app/Container/utils/error_notification.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class MessagingService {
@@ -40,7 +39,7 @@ class MessagingService {
 
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
         'high_importance_channel', // id
-        'Trippo', // title
+        'BVI Park & Ride', // title
         importance: Importance.max,
       );
 
@@ -57,12 +56,6 @@ class MessagingService {
           _firebaseMessagingBackgroundHandler);
 
       void showNotDialog(message, notificationData, screen) {
-        if (message.notification!.status != null) {
-          if (message.notification!.status == "denied") {
-            ref.read(globalFirestoreRepoProvider).nullifyUserRides(context);
-          }
-        }
-
         showDialog(
           context: context,
           barrierDismissible: false,

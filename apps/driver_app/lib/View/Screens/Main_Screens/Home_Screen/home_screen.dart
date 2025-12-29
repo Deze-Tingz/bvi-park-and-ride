@@ -1,18 +1,19 @@
 /// BVI Park & Ride - Driver Home Screen
 ///
-/// Shift management interface for shuttle drivers.
+/// Simplified single-screen interface matching rider app design.
 /// Features:
-/// - Start/End Shift
-/// - Route and vehicle selection
+/// - Start/End Shift with route/vehicle selection
+/// - Map view showing other shuttles (up to 3)
+/// - Quick driver-to-driver communication
 /// - Stop checklist with Arrived/Departed buttons
-/// - Vehicle status toggle (Full/Out of Service)
-/// - Real-time GPS broadcasting
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'home_logics.dart';
 import 'home_providers.dart';
+import '../../../../Container/services/socket_service.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -22,7 +23,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  MapboxMap? _mapController;
+  final Completer<GoogleMapController> _mapController = Completer();
+  static const LatLng _defaultCenter = LatLng(18.4286, -64.6185);
 
   @override
   void initState() {
@@ -37,6 +39,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final shiftStatus = ref.watch(shiftStatusProvider);
     final isLoading = ref.watch(isLoadingProvider);
     final error = ref.watch(errorMessageProvider);
+    final showMap = ref.watch(showMapViewProvider);
+    final unreadCount = ref.watch(unreadMessageCountProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
@@ -45,8 +49,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             // Main content based on shift status
             shiftStatus == ShiftStatus.active
-                ? _buildActiveShiftView()
+                ? (showMap ? _buildMapView() : _buildActiveShiftView())
                 : _buildOfflineView(),
+
+            // View toggle and message button (only during active shift)
+            if (shiftStatus == ShiftStatus.active)
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Row(
+                  children: [
+                    // Message button with badge
+                    Stack(
+                      children: [
+                        FloatingActionButton(
+                          mini: true,
+                          heroTag: 'messages',
+                          backgroundColor: const Color(0xFF2A2A2A),
+                          onPressed: () => _showMessagesSheet(),
+                          child: const Icon(Icons.message, color: Colors.white, size: 20),
+                        ),
+                        if (unreadCount > 0)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                unreadCount > 9 ? '9+' : '$unreadCount',
+                                style: const TextStyle(color: Colors.white, fontSize: 10),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(width: 8),
+                    // Map/List toggle
+                    FloatingActionButton(
+                      mini: true,
+                      heroTag: 'toggle',
+                      backgroundColor: const Color(0xFF2A2A2A),
+                      onPressed: () => HomeLogics().toggleMapView(ref),
+                      child: Icon(
+                        showMap ? Icons.list : Icons.map,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
             // Loading overlay
             if (isLoading || shiftStatus == ShiftStatus.starting || shiftStatus == ShiftStatus.ending)
@@ -710,5 +766,416 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       hexColor = 'FF$hexColor';
     }
     return Color(int.parse(hexColor, radix: 16));
+  }
+
+  /// Build the map view showing other shuttles
+  Widget _buildMapView() {
+    final otherVehicles = ref.watch(otherVehiclesProvider);
+    final selectedRoute = ref.watch(selectedRouteProvider);
+    final isConnected = ref.watch(connectionStatusProvider);
+
+    // Create markers for other vehicles
+    final markers = <Marker>{};
+    for (final vehicle in otherVehicles.values) {
+      markers.add(
+        Marker(
+          markerId: MarkerId('vehicle_${vehicle.vehicleId}'),
+          position: LatLng(vehicle.latitude, vehicle.longitude),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+          rotation: vehicle.heading ?? 0,
+          anchor: const Offset(0.5, 0.5),
+          infoWindow: InfoWindow(
+            title: 'Shuttle ${vehicle.vehicleId}',
+            snippet: vehicle.status,
+          ),
+        ),
+      );
+    }
+
+    return Stack(
+      children: [
+        // Full screen map
+        GoogleMap(
+          initialCameraPosition: CameraPosition(
+            target: _defaultCenter,
+            zoom: 14.0,
+          ),
+          onMapCreated: (GoogleMapController controller) {
+            if (!_mapController.isCompleted) {
+              _mapController.complete(controller);
+            }
+            controller.setMapStyle(_darkMapStyle);
+          },
+          markers: markers,
+          myLocationEnabled: true,
+          myLocationButtonEnabled: false,
+          zoomControlsEnabled: false,
+          mapToolbarEnabled: false,
+          compassEnabled: false,
+        ),
+
+        // Route badge and connection status
+        Positioned(
+          top: 60,
+          left: 16,
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _parseColor(selectedRoute?.color ?? '#007AFF'),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  selectedRoute?.name ?? 'Unknown',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2A2A2A),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isConnected ? Colors.green : Colors.orange,
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isConnected ? Colors.green : Colors.orange,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      isConnected ? 'Live' : 'Offline',
+                      style: const TextStyle(color: Colors.white, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Other vehicles count
+        Positioned(
+          bottom: 100,
+          left: 16,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A2A2A),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.directions_bus, color: Colors.blue, size: 24),
+                const SizedBox(width: 8),
+                Text(
+                  '${otherVehicles.length} other shuttle${otherVehicles.length == 1 ? '' : 's'} active',
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Quick message buttons
+        Positioned(
+          bottom: 16,
+          left: 16,
+          right: 16,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A2A2A),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Quick Message',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _buildQuickMessageChip('On my way!', QuickMessage.onMyWay),
+                    _buildQuickMessageChip('At stop', QuickMessage.atStop),
+                    _buildQuickMessageChip('Bus full', QuickMessage.busIsFull),
+                    _buildQuickMessageChip('All clear', QuickMessage.allClear),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickMessageChip(String label, QuickMessage type) {
+    return GestureDetector(
+      onTap: () => HomeLogics().sendQuickMessage(ref, type),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade800,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(color: Colors.white, fontSize: 12),
+        ),
+      ),
+    );
+  }
+
+  void _showMessagesSheet() {
+    HomeLogics().clearUnreadCount(ref);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => _MessagesSheet(
+          scrollController: scrollController,
+        ),
+      ),
+    );
+  }
+
+  // Dark map style JSON
+  static const String _darkMapStyle = '''
+[
+  {"elementType": "geometry", "stylers": [{"color": "#242f3e"}]},
+  {"elementType": "labels.text.stroke", "stylers": [{"color": "#242f3e"}]},
+  {"elementType": "labels.text.fill", "stylers": [{"color": "#746855"}]},
+  {"featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{"color": "#d59563"}]},
+  {"featureType": "road", "elementType": "geometry", "stylers": [{"color": "#38414e"}]},
+  {"featureType": "road", "elementType": "geometry.stroke", "stylers": [{"color": "#212a37"}]},
+  {"featureType": "road", "elementType": "labels.text.fill", "stylers": [{"color": "#9ca5b3"}]},
+  {"featureType": "road.highway", "elementType": "geometry", "stylers": [{"color": "#746855"}]},
+  {"featureType": "water", "elementType": "geometry", "stylers": [{"color": "#17263c"}]},
+  {"featureType": "water", "elementType": "labels.text.fill", "stylers": [{"color": "#515c6d"}]}
+]
+''';
+}
+
+/// Messages bottom sheet widget
+class _MessagesSheet extends ConsumerStatefulWidget {
+  final ScrollController scrollController;
+
+  const _MessagesSheet({required this.scrollController});
+
+  @override
+  ConsumerState<_MessagesSheet> createState() => _MessagesSheetState();
+}
+
+class _MessagesSheetState extends ConsumerState<_MessagesSheet> {
+  final _messageController = TextEditingController();
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final messages = ref.watch(driverMessagesProvider);
+
+    return Column(
+      children: [
+        // Handle bar
+        Container(
+          margin: const EdgeInsets.only(top: 12),
+          width: 40,
+          height: 4,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade600,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+
+        // Header
+        const Padding(
+          padding: EdgeInsets.all(16),
+          child: Text(
+            'Driver Chat',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+
+        // Messages list
+        Expanded(
+          child: messages.isEmpty
+              ? const Center(
+                  child: Text(
+                    'No messages yet',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                )
+              : ListView.builder(
+                  controller: widget.scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final msg = messages[index];
+                    return _buildMessageBubble(msg);
+                  },
+                ),
+        ),
+
+        // Quick messages row
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildQuickBtn('On my way!', QuickMessage.onMyWay),
+                _buildQuickBtn('Running late', QuickMessage.runningLate),
+                _buildQuickBtn('Need help', QuickMessage.needAssistance),
+                _buildQuickBtn('All clear', QuickMessage.allClear),
+              ],
+            ),
+          ),
+        ),
+
+        // Message input
+        Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _messageController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Type a message...',
+                    hintStyle: TextStyle(color: Colors.grey.shade500),
+                    filled: true,
+                    fillColor: Colors.grey.shade900,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              FloatingActionButton(
+                mini: true,
+                backgroundColor: Colors.green,
+                onPressed: _sendMessage,
+                child: const Icon(Icons.send, color: Colors.white, size: 18),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMessageBubble(ChatMessage msg) {
+    final isMe = msg.isFromMe;
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isMe ? Colors.green.shade700 : Colors.grey.shade800,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.7,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!isMe)
+              Text(
+                msg.fromDriverName,
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            Text(
+              msg.message,
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              _formatTime(msg.timestamp),
+              style: TextStyle(color: Colors.grey.shade400, fontSize: 10),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickBtn(String label, QuickMessage type) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: ActionChip(
+        label: Text(label, style: const TextStyle(fontSize: 12)),
+        backgroundColor: Colors.grey.shade800,
+        labelStyle: const TextStyle(color: Colors.white),
+        onPressed: () {
+          HomeLogics().sendQuickMessage(ref, type);
+        },
+      ),
+    );
+  }
+
+  void _sendMessage() {
+    final text = _messageController.text.trim();
+    if (text.isNotEmpty) {
+      HomeLogics().sendMessage(ref, text);
+      _messageController.clear();
+    }
+  }
+
+  String _formatTime(DateTime time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 }

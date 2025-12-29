@@ -36,12 +36,17 @@ dependencies:
   go_router: ^14.0.0
   flutter_riverpod: ^2.4.9
 
-  # Maps - Mapbox (replacing Google Maps)
-  mapbox_maps_flutter: ^2.0.0
+  # Firebase - Real-time backend (Uber-quality)
+  firebase_core: ^3.8.1
+  firebase_auth: ^5.3.4
+  cloud_firestore: ^5.6.0
+  firebase_messaging: ^15.1.6
 
-  # Location - Enhanced for driver tracking
+  # Maps - Google Maps (Uber-quality, no watermark)
+  google_maps_flutter: ^2.10.0
+
+  # Location - For driver tracking
   geolocator: ^11.0.0
-  flutter_background_geolocation: ^4.14.4
 
   # Networking
   dio: ^5.4.0
@@ -60,7 +65,7 @@ dependencies:
   intl: ^0.19.0
   wakelock_plus: ^1.1.4
 
-  # Push Notifications
+  # Push Notifications (FCM)
   flutter_local_notifications: ^17.0.0
 
 dev_dependencies:
@@ -76,6 +81,10 @@ dev_dependencies:
   custom_lint: ^0.5.2
   riverpod_lint: ^2.0.1
 
+# Override transitive dependencies for compatibility
+dependency_overrides:
+  win32: ^5.10.0
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -90,6 +99,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/imgs/
+    - assets/icons/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

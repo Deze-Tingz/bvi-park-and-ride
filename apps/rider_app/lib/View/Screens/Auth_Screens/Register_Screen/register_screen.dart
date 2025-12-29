@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:trippo_user/View/Screens/Auth_Screens/Register_Screen/register_logics.dart';
-import 'package:trippo_user/View/Screens/Auth_Screens/Register_Screen/register_providers.dart';
+import 'register_logics.dart';
+import 'register_providers.dart';
 import '../../../Components/all_components.dart';
 import '../../../Routes/routes.dart';
 
@@ -17,6 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
@@ -91,7 +92,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       onTap:
                                           ref.watch(registerIsLoadingProvider)
                                               ? null
-                                              : () =>RegisterLogics().registerUser(context ,ref , nameController , emailController , passwordController),
+                                              : () => RegisterLogics()
+                                                  .registerUser(
+                                                      context,
+                                                      ref,
+                                                      nameController,
+                                                      emailController,
+                                                      passwordController),
                                       child: Components().mainButton(
                                           size,
                                           ref.watch(registerIsLoadingProvider)
@@ -129,6 +136,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
       )),
     );
   }
-
-
 }

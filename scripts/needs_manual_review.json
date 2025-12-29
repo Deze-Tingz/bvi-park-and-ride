@@ -1,0 +1,13 @@
+[
+  {
+    "stop_id": "stop-010",
+    "name": "Dr. D. Orlando Smith Hospital",
+    "coordinates": [
+      -64.6235,
+      18.4335
+    ],
+    "confidence": 0.3,
+    "source": "existing",
+    "reason": "Low confidence score"
+  }
+]

@@ -4,8 +4,10 @@
 /// WebSocket subscription for real-time shuttle updates.
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../Container/services/api_client.dart';
@@ -118,35 +120,50 @@ class HomeScreenLogics {
     }
   }
 
-  /// Load fallback data when API is unavailable
-  void _loadFallbackData(WidgetRef ref) {
-    final fallbackStops = [
-      StopInfo(id: 'stop-001', name: 'Festival Grounds Parking Lot', latitude: 18.4285, longitude: -64.6189),
-      StopInfo(id: 'stop-002', name: 'CCT / Eureka Parking', latitude: 18.4278, longitude: -64.6201),
-      StopInfo(id: 'stop-003', name: "Bobby's Supermarket", latitude: 18.4290, longitude: -64.6175),
-      StopInfo(id: 'stop-004', name: 'Mill Mall', latitude: 18.4275, longitude: -64.6165),
-      StopInfo(id: 'stop-005', name: 'Banco Popular', latitude: 18.4268, longitude: -64.6155),
-      StopInfo(id: 'stop-006', name: 'Tortola Pier Park', latitude: 18.4255, longitude: -64.6145),
-      StopInfo(id: 'stop-007', name: 'Ferry Terminal', latitude: 18.4248, longitude: -64.6135),
-      StopInfo(id: 'stop-008', name: 'RiteWay Road Reef', latitude: 18.4295, longitude: -64.6220),
-      StopInfo(id: 'stop-009', name: 'Slaney Hill Roundabout', latitude: 18.4310, longitude: -64.6245),
-      StopInfo(id: 'stop-010', name: 'Dr. D. Orlando Smith Hospital', latitude: 18.4325, longitude: -64.6260),
-      StopInfo(id: 'stop-011', name: "Pusser's Parking", latitude: 18.4240, longitude: -64.6150),
-      StopInfo(id: 'stop-012', name: 'Elmore Stoutt High School', latitude: 18.4335, longitude: -64.6280),
-      StopInfo(id: 'stop-013', name: 'Road Town Police Station', latitude: 18.4265, longitude: -64.6170),
-      StopInfo(id: 'stop-014', name: 'Althea Scatliffe Primary', latitude: 18.4300, longitude: -64.6195),
-      StopInfo(id: 'stop-015', name: 'OneMart Parking Lot', latitude: 18.4320, longitude: -64.6235),
-      StopInfo(id: 'stop-016', name: 'Delta / Golden Hind', latitude: 18.4305, longitude: -64.6210),
-      StopInfo(id: 'stop-017', name: 'Moorings', latitude: 18.4350, longitude: -64.6300),
-    ];
+  /// Load fallback data from bundled GeoJSON when API is unavailable
+  Future<void> _loadFallbackData(WidgetRef ref) async {
+    try {
+      // Load stops from GeoJSON asset
+      final stopsJson = await rootBundle.loadString('assets/jsons/stops.geojson');
+      final stopsData = json.decode(stopsJson) as Map<String, dynamic>;
+      final features = stopsData['features'] as List<dynamic>;
 
-    final fallbackRoutes = [
-      RouteInfo(id: 'green', name: 'Green Line', color: '#22C55E', stops: fallbackStops.sublist(0, 10)),
-      RouteInfo(id: 'yellow', name: 'Yellow Line', color: '#EAB308', stops: fallbackStops.sublist(5, 17)),
+      final stops = features
+          .map((f) => StopInfo.fromGeoJsonFeature(f as Map<String, dynamic>))
+          .toList();
+
+      // Sort by sequence
+      stops.sort((a, b) => a.sequence.compareTo(b.sequence));
+
+      // Single circular route for Park & Ride
+      final parkAndRideRoute = RouteInfo(
+        id: 'park-and-ride',
+        name: 'Park & Ride',
+        color: '#0B9444',
+        stops: stops,
+      );
+
+      ref.read(stopsProvider.notifier).state = stops;
+      ref.read(routesProvider.notifier).state = [parkAndRideRoute];
+      _updateNearestStop(ref);
+
+      print('Loaded ${stops.length} stops from GeoJSON');
+    } catch (e) {
+      print('Error loading GeoJSON: $e');
+      // Ultimate fallback - hardcoded minimal data
+      _loadHardcodedFallback(ref);
+    }
+  }
+
+  /// Ultimate fallback with minimal hardcoded data
+  void _loadHardcodedFallback(WidgetRef ref) {
+    final fallbackStops = [
+      StopInfo(id: 'stop-001', name: 'Ralph T. O\'Neal Administration Complex', shortName: 'Admin Complex', latitude: 18.4265, longitude: -64.6175, type: 'government', sequence: 1, isStartEnd: true),
+      StopInfo(id: 'stop-014', name: 'Festival Grounds Parking Lot', shortName: 'Festival Grounds', latitude: 18.4220, longitude: -64.6385, type: 'parking', sequence: 16),
+      StopInfo(id: 'stop-018', name: 'Cyril B. Romney Tortola Pier Park', shortName: 'Pier Park', latitude: 18.4240, longitude: -64.6165, type: 'transit', sequence: 20),
     ];
 
     ref.read(stopsProvider.notifier).state = fallbackStops;
-    ref.read(routesProvider.notifier).state = fallbackRoutes;
     _updateNearestStop(ref);
   }
 

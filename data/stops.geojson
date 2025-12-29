@@ -1,0 +1,339 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "version": "2.0.0",
+    "generatedAt": "2025-12-28T20:00:00.000Z",
+    "source": "City of Road Town Park & Ride Official Flyer",
+    "region": "Road Town, Tortola, British Virgin Islands",
+    "schedule": {
+      "days": "Monday - Friday",
+      "hours": "7:00 a.m. - 6:00 p.m.",
+      "frequency": "Every 15 minutes"
+    },
+    "totalStops": 20,
+    "routeType": "circular"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-001",
+        "sequence": 1,
+        "name": "Ralph T. O'Neal Administration Complex",
+        "shortName": "Admin Complex",
+        "type": "government",
+        "amenities": ["parking", "shelter"],
+        "isActive": true,
+        "isStartEnd": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6175, 18.4265]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-002",
+        "sequence": 2,
+        "name": "Lay-by Clover's",
+        "shortName": "Clover's",
+        "type": "commercial",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6190, 18.4258]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-003",
+        "sequence": 3,
+        "name": "Sol Gas Station",
+        "shortName": "Sol Gas",
+        "type": "commercial",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6205, 18.4248]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-004",
+        "sequence": 4,
+        "name": "Royal Shop Kids",
+        "shortName": "Royal Shop",
+        "type": "commercial",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6225, 18.4238]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-005",
+        "sequence": 5,
+        "name": "Prison Museum",
+        "shortName": "Prison Museum",
+        "type": "landmark",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6248, 18.4225]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-006",
+        "sequence": 6,
+        "name": "Midtown Restaurant",
+        "shortName": "Midtown",
+        "type": "commercial",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6275, 18.4212]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-007",
+        "sequence": 7,
+        "name": "Island Roots",
+        "shortName": "Island Roots",
+        "type": "commercial",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6305, 18.4198]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-008",
+        "sequence": 8,
+        "name": "Dr D Orlando Smith Hospital Parking Lot",
+        "shortName": "Hospital",
+        "type": "medical",
+        "amenities": ["parking", "shelter"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6348, 18.4355]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-009",
+        "sequence": 9,
+        "name": "Lay-by Pusser's",
+        "shortName": "Pusser's",
+        "type": "commercial",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6170, 18.4255]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-010",
+        "sequence": 12,
+        "name": "Market Square / VI Fire and Rescue",
+        "shortName": "Market Square",
+        "type": "government",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6215, 18.4278]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-011",
+        "sequence": 13,
+        "name": "Elmore Stoutt High School",
+        "shortName": "ESHS",
+        "type": "school",
+        "amenities": ["parking"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6320, 18.4280]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-012",
+        "sequence": 14,
+        "name": "Lay-by Road Town Police Station",
+        "shortName": "Police Station",
+        "type": "government",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6205, 18.4268]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-013",
+        "sequence": 15,
+        "name": "Althea Scatliffe Primary School",
+        "shortName": "Althea Scatliffe",
+        "type": "school",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6280, 18.4295]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-014",
+        "sequence": 16,
+        "name": "Festival Grounds Parking Lot",
+        "shortName": "Festival Grounds",
+        "type": "parking",
+        "amenities": ["parking", "shelter"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6385, 18.4220]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-015",
+        "sequence": 17,
+        "name": "CCT/Eureka Parking Lot",
+        "shortName": "CCT Parking",
+        "type": "parking",
+        "amenities": ["parking"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6340, 18.4245]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-016",
+        "sequence": 18,
+        "name": "Bobby's Supermarket",
+        "shortName": "Bobby's",
+        "type": "commercial",
+        "amenities": ["shelter", "bench"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6195, 18.4285]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-017",
+        "sequence": 19,
+        "name": "Banco Popular",
+        "shortName": "Banco Popular",
+        "type": "commercial",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6182, 18.4275]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-018",
+        "sequence": 20,
+        "name": "Cyril B. Romney Tortola Pier Park",
+        "shortName": "Pier Park",
+        "type": "transit",
+        "amenities": ["parking", "shelter", "restroom"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6165, 18.4240]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-019",
+        "sequence": 21,
+        "name": "Cyril B. Romney Tortola Pier Park (Rear)",
+        "shortName": "Pier Park Rear",
+        "type": "transit",
+        "amenities": ["parking"],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6158, 18.4232]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stop_id": "stop-020",
+        "sequence": 22,
+        "name": "Central Roundabout",
+        "shortName": "Roundabout",
+        "type": "intersection",
+        "amenities": [],
+        "isActive": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.6200, 18.4260]
+      }
+    }
+  ]
+}
