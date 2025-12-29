@@ -10,68 +10,50 @@ command:
 scripts:
   # Clean all packages
   clean:
-    run: flutter clean
-    exec:
-      concurrency: 1
+    run: melos exec -- flutter clean
     description: Clean all packages
 
   # Get dependencies for all packages
   get:
-    run: flutter pub get
-    exec:
-      concurrency: 1
+    run: melos exec -- flutter pub get
     description: Get dependencies for all packages
 
-  # Run a specific app
+  # Run driver app
   run:driver:
-    run: flutter run
+    run: cd apps/driver_app && flutter run
     description: Run the driver app
-    packageFilters:
-      scope: bvi_driver_app
 
+  # Run rider app
   run:rider:
-    run: flutter run
+    run: cd apps/rider_app && flutter run
     description: Run the rider app
-    packageFilters:
-      scope: bvi_rider_app
 
   # Build debug APKs
   build:debug:
-    run: flutter build apk --debug
-    exec:
-      concurrency: 1
+    run: melos exec -- flutter build apk --debug
     description: Build debug APKs for all apps
 
   # Build release APKs
   build:release:
-    run: flutter build apk --release
-    exec:
-      concurrency: 1
+    run: melos exec -- flutter build apk --release
     description: Build release APKs for all apps
 
-  # Build specific apps
+  # Build driver app
   build:driver:
-    run: flutter build apk --release
+    run: cd apps/driver_app && flutter build apk --release
     description: Build driver app release APK
-    packageFilters:
-      scope: bvi_driver_app
 
+  # Build rider app
   build:rider:
-    run: flutter build apk --release
+    run: cd apps/rider_app && flutter build apk --release
     description: Build rider app release APK
-    packageFilters:
-      scope: bvi_rider_app
 
   # Analyze all packages
   analyze:
-    run: flutter analyze
-    exec:
-      concurrency: 1
+    run: melos exec -- flutter analyze
     description: Analyze all packages
 
   # Run tests
   test:
-    run: flutter test
-    exec:
-      concurrency: 1
+    run: melos exec -- flutter test
     description: Run tests for all packages
